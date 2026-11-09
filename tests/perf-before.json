@@ -1,0 +1,15 @@
+{
+  "dcl": 140.1,
+  "load": 140.2,
+  "fcp": 152,
+  "lcp": null,
+  "tbtApprox": 41,
+  "jsTransfer": 260126,
+  "jsDecoded": 259526,
+  "jsFiles": [
+    "app.js:256863",
+    "tfidf-worker.js:2663"
+  ],
+  "wallMs": 1997,
+  "note": "monolith app.js before v13"
+}

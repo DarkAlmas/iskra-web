@@ -1,0 +1,173 @@
+{
+  "dcl": 137.20000000298023,
+  "load": 140.10000000149012,
+  "fcp": 132,
+  "lcp": null,
+  "tbtApprox": 49,
+  "jsTransfer": 187530,
+  "jsDecoded": 182730,
+  "jsFiles": [
+    {
+      "name": "main.js",
+      "transfer": 409,
+      "decoded": 109
+    },
+    {
+      "name": "core.js",
+      "transfer": 110447,
+      "decoded": 110147
+    },
+    {
+      "name": "safe.js",
+      "transfer": 1232,
+      "decoded": 932
+    },
+    {
+      "name": "markdown.js",
+      "transfer": 8248,
+      "decoded": 7948
+    },
+    {
+      "name": "sse.js",
+      "transfer": 2301,
+      "decoded": 2001
+    },
+    {
+      "name": "i18n.js",
+      "transfer": 1836,
+      "decoded": 1536
+    },
+    {
+      "name": "voice.js",
+      "transfer": 1677,
+      "decoded": 1377
+    },
+    {
+      "name": "chat-edit.js",
+      "transfer": 9881,
+      "decoded": 9581
+    },
+    {
+      "name": "teach.js",
+      "transfer": 7740,
+      "decoded": 7440
+    },
+    {
+      "name": "feedback.js",
+      "transfer": 2128,
+      "decoded": 1828
+    },
+    {
+      "name": "lab.js",
+      "transfer": 5133,
+      "decoded": 4833
+    },
+    {
+      "name": "persona.js",
+      "transfer": 1861,
+      "decoded": 1561
+    },
+    {
+      "name": "modelcard.js",
+      "transfer": 8901,
+      "decoded": 8601
+    },
+    {
+      "name": "notifications.js",
+      "transfer": 3576,
+      "decoded": 3276
+    },
+    {
+      "name": "arena.js",
+      "transfer": 15354,
+      "decoded": 15054
+    },
+    {
+      "name": "tfidf-worker.js",
+      "transfer": 2963,
+      "decoded": 2663
+    },
+    {
+      "name": "onboarding.js",
+      "transfer": 0,
+      "decoded": 3843
+    }
+  ],
+  "wallMs": 2266,
+  "disk": {
+    "jsDirBytes": 129814,
+    "jsFiles": [
+      {
+        "name": "api.js",
+        "bytes": 626
+      },
+      {
+        "name": "arena.js",
+        "bytes": 87
+      },
+      {
+        "name": "calc.js",
+        "bytes": 2965
+      },
+      {
+        "name": "chat.js",
+        "bytes": 828
+      },
+      {
+        "name": "core.js",
+        "bytes": 110147
+      },
+      {
+        "name": "dashboard.js",
+        "bytes": 95
+      },
+      {
+        "name": "dataset.js",
+        "bytes": 91
+      },
+      {
+        "name": "elo.js",
+        "bytes": 799
+      },
+      {
+        "name": "eval.js",
+        "bytes": 85
+      },
+      {
+        "name": "i18n.js",
+        "bytes": 1536
+      },
+      {
+        "name": "main.js",
+        "bytes": 109
+      },
+      {
+        "name": "markdown.js",
+        "bytes": 7948
+      },
+      {
+        "name": "playground.js",
+        "bytes": 97
+      },
+      {
+        "name": "safe.js",
+        "bytes": 932
+      },
+      {
+        "name": "sse.js",
+        "bytes": 2001
+      },
+      {
+        "name": "storage.js",
+        "bytes": 1069
+      },
+      {
+        "name": "ui.js",
+        "bytes": 399
+      }
+    ],
+    "legacyAppJsBytes": 167,
+    "entry": "js/main.js"
+  },
+  "label": "after"
+}
