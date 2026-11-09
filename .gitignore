@@ -1,0 +1,8 @@
+tests/.venv/
+tests/screenshots/
+tests/perf-*.json
+tests/visual-report.json
+tests/before-metrics.json
+tests/live-e2e-report.json
+tests/node_modules/
+tests/a11y-report*.json

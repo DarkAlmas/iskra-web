@@ -1,0 +1,17 @@
+/* about page */
+.about-wrap { max-width: 920px; margin: 0 auto; padding: 28px 18px 64px; }
+    .about-wrap h1 { margin: 0 0 8px; font-size: 28px; }
+    .about-wrap .lead { color: var(--muted); margin: 0 0 24px; }
+    .about-wrap h2 { margin: 28px 0 10px; font-size: 18px; }
+    .about-wrap p, .about-wrap li { line-height: 1.55; font-size: 14.5px; }
+    .pipe-svg { width: 100%; height: auto; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 8px; }
+    .roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+    .role {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px;
+    }
+    .role h3 { margin: 0 0 4px; font-size: 14px; color: var(--accent); }
+    .role p { margin: 0; font-size: 13px; color: var(--muted); }
+    .lic { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .lic th, .lic td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
+    .lic th { background: var(--surface2); color: var(--muted); font-weight: 600; }
+    .back { display: inline-block; margin-bottom: 16px; }

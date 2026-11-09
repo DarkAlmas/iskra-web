@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://tbbaztmtkcrzxnkkmtqv.supabase.co; img-src 'self' data: blob:; frame-src 'self' blob:; worker-src 'self' blob:; base-uri 'self'; form-action 'self'; object-src 'none'" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>МойGPT — свой чат</title>
+  <meta name="theme-color" content="#0b0f14" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">✦</div>
+        <div>
+          <div class="brand-title">МойGPT</div>
+          <div class="brand-sub">свой чат · свой корпус</div>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary btn-block" id="btnNewChat">＋ Новый чат</button>
+      <div class="sidebar-tools">
+        <button type="button" class="btn btn-ghost btn-sm" id="btnNewFolder" title="Новая папка">📁+</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="btnPrompts" title="Библиотека промптов">/ промпты</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="btnMsgSearch" title="Поиск по сообщениям (Ctrl+F)">⌕</button>
+      </div>
+      <input type="search" class="search-input" id="chatSearch" placeholder="Фильтр чатов…" autocomplete="off" />
+      <div class="sidebar-label">История</div>
+      <ul class="chat-list" id="chatList"></ul>
+      <div class="similar-box" id="similarBox">
+        <div class="sidebar-label">Похожие чаты</div>
+        <ul class="similar-list" id="similarList"></ul>
+        <div class="similar-empty" id="similarEmpty">откройте чат…</div>
+      </div>
+      <div class="sidebar-foot">
+        <label class="field">
+          <span>Модель</span>
+          <select id="modelSelect" aria-label="Модель"></select>
+        </label>
+        <label class="check-field">
+          <input type="checkbox" id="compareMode" />
+          <span>Сравнение</span>
+        </label>
+        <label class="check-field">
+          <input type="checkbox" id="arenaMode" />
+          <span>Арена</span>
+        </label>
+        <div class="compare-models" id="compareModels" hidden>
+          <label class="field"><span>A</span><select id="modelSelectA" aria-label="Модель A"></select></label>
+          <label class="field"><span>B</span><select id="modelSelectB" aria-label="Модель B"></select></label>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn btn-ghost btn-icon" id="btnToggleSidebar" title="Меню" aria-label="Меню боковой панели">☰</button>
+          <span class="health-dot" id="healthDot" title="Проверка…" role="status" aria-label="Статус сервера"></span>
+          <h1 id="chatTitle">Новый чат</h1>
+          <label class="persona-wrap" title="Персона">
+            <span class="sr-only">Персона</span>
+            <select id="personaSelect" aria-label="Персона"></select>
+          </label>
+          <button type="button" class="btn btn-ghost btn-icon" id="btnPersonaAdd" title="Новая персона" aria-label="Новая персона">＋</button>
+        </div>
+        <nav class="topbar-tabs" id="topbarTabs" aria-label="Разделы">
+          <div class="topbar-tabs-track" id="topbarTabsTrack">
+            <button type="button" class="btn btn-ghost tab-btn" id="btnToggleDash">Панель</button>
+            <button type="button" class="btn btn-ghost tab-btn" id="btnToggleTrain">Обучение</button>
+            <button type="button" class="btn btn-ghost tab-btn" id="btnToggleEval">Оценка</button>
+            <button type="button" class="btn btn-ghost tab-btn" id="btnToggleCorpus">Корпус</button>
+            <button type="button" class="btn btn-ghost tab-btn" id="btnToggleDataset" data-i18n="tab.dataset">Датасет</button>
+            <button type="button" class="btn btn-ghost tab-btn" id="btnToggleLab">Лаборатория</button>
+            <button type="button" class="btn btn-ghost tab-btn" id="btnToggleArena">Арена</button>
+            <button type="button" class="btn btn-ghost tab-btn" id="btnToggleElo">Elo</button>
+            <button type="button" class="btn btn-ghost tab-btn" id="btnToggleSettings">Настройки</button>
+            <button type="button" class="btn btn-ghost tab-btn" id="btnToggleEvo">Эволюция</button>
+            <button type="button" class="btn btn-ghost tab-btn" id="btnToggleChatStats">Статистика</button>
+            <button type="button" class="btn btn-ghost tab-btn" id="btnTogglePlayground">Playground</button>
+            <button type="button" class="btn btn-ghost tab-btn" id="btnToggleModelCard">Модель</button>
+            <a class="btn btn-ghost tab-btn" id="btnAbout" href="about.html" target="_blank" rel="noopener">О проекте</a>
+          </div>
+          <div class="menu-wrap tabs-overflow-wrap">
+            <button type="button" class="btn btn-ghost btn-icon" id="btnTabsMore" title="Ещё разделы" aria-haspopup="menu" aria-expanded="false" hidden>⋯</button>
+            <div class="topbar-menu" id="tabsMenu" role="menu" hidden></div>
+          </div>
+        </nav>
+        <div class="topbar-actions">
+          <div class="menu-wrap">
+            <button type="button" class="btn btn-ghost" id="btnExportMenu" title="Экспорт" aria-haspopup="menu" aria-expanded="false">Экспорт ▾</button>
+            <div class="topbar-menu" id="exportMenu" role="menu" hidden>
+              <button type="button" class="menu-item" role="menuitem" id="btnExport" title="Экспорт в Markdown" aria-label="Экспорт Markdown">↓ .md</button>
+              <button type="button" class="menu-item" role="menuitem" id="btnExportHtml" title="Экспорт HTML" aria-label="Экспорт HTML">↓ HTML</button>
+              <button type="button" class="menu-item" role="menuitem" id="btnShareHtml" title="Шаринг: standalone HTML" aria-label="Поделиться HTML">↗ HTML</button>
+              <button type="button" class="menu-item" role="menuitem" id="btnSharePng" title="Шаринг: PNG-карточка" aria-label="Поделиться PNG">↗ PNG</button>
+              <button type="button" class="menu-item" role="menuitem" id="btnWorkspace" title="Экспорт/импорт workspace">Workspace</button>
+            </div>
+          </div>
+          <div class="menu-wrap">
+            <button type="button" class="btn btn-ghost btn-icon" id="btnMoreMenu" title="Ещё" aria-haspopup="menu" aria-expanded="false" aria-label="Ещё">⋯</button>
+            <div class="topbar-menu" id="moreMenu" role="menu" hidden>
+              <button type="button" class="menu-item" role="menuitem" id="btnCmdPalette" title="Палитра команд (Ctrl+K)" aria-label="Палитра команд">⌘ Палитра</button>
+              <button type="button" class="menu-item" role="menuitem" id="btnTheme" title="Тема">◐ Тема</button>
+              <button type="button" class="menu-item" role="menuitem" id="btnHelp" title="Горячие клавиши">? Клавиши</button>
+              <button type="button" class="menu-item" role="menuitem" id="btnLang" title="RU/EN" aria-label="Language">EN</button>
+              <button type="button" class="menu-item" role="menuitem" id="btnPerf" title="Perf check" aria-label="Perf">⚡ Perf</button>
+              <button type="button" class="menu-item" role="menuitem" id="btnNotif" title="Уведомления" aria-label="Уведомления">🔔 Уведомления<span class="notif-badge" id="notifBadge" hidden>0</span></button>
+              <button type="button" class="menu-item" role="menuitem" id="btnThemeBuilder" title="Тема / accent" aria-label="Конструктор темы">🎨 Тема</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="help-tip help-sheet" id="helpTip" hidden role="dialog" aria-label="Горячие клавиши">
+        <div class="help-sheet-head">
+          <strong>Горячие клавиши</strong>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnHelpClose">Закрыть</button>
+        </div>
+        <div class="help-grid">
+          <div><kbd>Ctrl</kbd>+<kbd>K</kbd> — палитра команд</div>
+          <div><kbd>Ctrl</kbd>+<kbd>F</kbd> — поиск по сообщениям</div>
+          <div><kbd>Ctrl</kbd>+<kbd>Enter</kbd> — отправить</div>
+          <div><kbd>Shift</kbd>+<kbd>Enter</kbd> — новая строка</div>
+          <div><kbd>Esc</kbd> — закрыть / стоп</div>
+          <div><kbd>/</kbd> в поле — промпты и инструменты</div>
+          <div><kbd>?</kbd> — этот лист</div>
+          <div><kbd>Ctrl</kbd>+<kbd>N</kbd> — новый чат</div>
+        </div>
+        <div class="help-tools">
+          <strong>Инструменты в чате</strong>
+          <div><code>/calc 2+2*3</code> — безопасный калькулятор</div>
+          <div><code>/wiki запрос</code> — поиск по корпусу + цитата</div>
+          <div><code>/time</code> — текущее время (Europe/Moscow)</div>
+        </div>
+      </div>
+
+      <section class="settings sheetable" id="settingsPanel" hidden role="dialog" aria-label="Настройки генерации">
+        <div class="sheet-handle" id="settingsSheetHandle" aria-hidden="true"></div>
+        <button type="button" class="btn btn-ghost btn-sm sheet-close" id="btnSettingsClose" hidden>Закрыть</button>
+        <div class="settings-note">Параметры генерации для <em>этого чата</em> → тело <code>/api/chat</code>. Сервер clamp: temp 0..5 · tokens 1..4096 · top_k 0..500 · top_p 0.01..1 · rep 0.5..3</div>
+        <label class="slider-field">
+          <span>Температура <em id="tempVal">0.80</em></span>
+          <input type="range" id="tempSlider" min="0" max="5" step="0.05" value="0.8" />
+        </label>
+        <label class="slider-field">
+          <span>Макс. токенов <em id="tokensVal">200</em></span>
+          <input type="range" id="tokensSlider" min="1" max="4096" step="1" value="200" />
+        </label>
+        <label class="slider-field">
+          <span>top_k <em id="topkVal">50</em></span>
+          <input type="range" id="topkSlider" min="0" max="500" step="5" value="50" />
+        </label>
+        <label class="slider-field">
+          <span>top_p <em id="toppVal">0.95</em></span>
+          <input type="range" id="toppSlider" min="0.01" max="1" step="0.01" value="0.95" />
+        </label>
+        <label class="slider-field">
+          <span>Repetition penalty <em id="repVal">1.15</em></span>
+          <input type="range" id="repSlider" min="0.5" max="3" step="0.05" value="1.15" />
+        </label>
+        <div class="lab-actions gen-reset-row">
+          <button type="button" class="btn btn-ghost btn-sm" id="btnResetGen">Сбросить к серверным</button>
+        </div>
+        <label class="check-field settings-check">
+          <input type="checkbox" id="heatmapToggle" />
+          <span>Тепловая карта токенов (p)</span>
+        </label>
+        <div class="heatmap-legend" id="heatmapLegend" hidden>
+          <span class="hm-low">низкая p</span>
+          <span class="hm-bar" aria-hidden="true"></span>
+          <span class="hm-high">высокая p</span>
+        </div>
+        <label class="sys-field">
+          <span>System prompt (опционально)</span>
+          <textarea id="systemPrompt" rows="2" placeholder="Роль / инструкции для модели…" aria-label="Системный промпт"></textarea>
+        </label>
+      </section>
+
+
+      
+      
+      
+      <section class="dash-panel" id="dashPanel" hidden>
+        <div class="dash-head">
+          <h2>Панель проекта</h2>
+          <button type="button" class="btn btn-ghost" id="btnDashRefresh">Обновить</button>
+          <span class="lab-meta" id="dashUpdated" role="status"></span>
+        </div>
+        <div class="dash-grid">
+          <div class="dash-card" id="dashHealthCard">
+            <h3>Сервер</h3>
+            <div id="dashHealth" class="dash-kv">…</div>
+          </div>
+          <div class="dash-card">
+            <h3>Корпус</h3>
+            <div id="dashCorpusMeta" class="dash-kv">…</div>
+            <div class="dash-charts">
+              <canvas id="dashDonut" width="180" height="180" aria-label="Источники корпуса"></canvas>
+              <ul class="dash-legend" id="dashLegend"></ul>
+            </div>
+            <h4 class="dash-sub">Рост корпуса</h4>
+            <canvas id="dashGrowth" width="360" height="120" aria-label="Рост корпуса"></canvas>
+          </div>
+          <div class="dash-card">
+            <h3>Чекпоинты</h3>
+            <ul class="dash-ckpts" id="dashCkpts"></ul>
+          </div>
+          <div class="dash-card">
+            <h3>Последняя строка обучения</h3>
+            <pre class="dash-log" id="dashTrainLog">…</pre>
+          </div>
+          <div class="dash-card" id="dashScrubCard" hidden>
+            <h3>Очистка</h3>
+            <div id="dashScrub" class="dash-kv">…</div>
+          </div>
+        </div>
+      </section>
+
+      
+      <section class="arena-panel" id="arenaPanel" hidden>
+        <div class="arena-head">
+          <h2>Арена</h2>
+          <span class="lab-meta">один промпт → две модели · голос A / B / ничья</span>
+        </div>
+        <div class="arena-prompt-row">
+          <textarea id="arenaPrompt" rows="2" placeholder="Промпт для арены…" aria-label="Промпт арены"></textarea>
+          <button type="button" class="btn btn-primary" id="btnArenaRun">Запустить</button>
+          <button type="button" class="btn btn-danger" id="btnArenaStop" hidden>Стоп</button>
+        </div>
+        <div class="arena-models">
+          <label class="field"><span>Модель A</span><select id="arenaModelA" aria-label="Арена модель A"></select></label>
+          <label class="field"><span>Модель B</span><select id="arenaModelB" aria-label="Арена модель B"></select></label>
+        </div>
+        <div class="arena-grid" id="arenaGrid">
+          <div class="arena-col" id="arenaColA">
+            <div class="arena-col-head"><strong>A</strong> <span id="arenaLabelA" class="lab-meta"></span></div>
+            <div class="bubble arena-bubble" id="arenaBubbleA" aria-live="polite"></div>
+          </div>
+          <div class="arena-col" id="arenaColB">
+            <div class="arena-col-head"><strong>B</strong> <span id="arenaLabelB" class="lab-meta"></span></div>
+            <div class="bubble arena-bubble" id="arenaBubbleB" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="arena-vote" id="arenaVote" hidden>
+          <button type="button" class="btn btn-primary" id="btnArenaA" data-vote="A">Лучше A</button>
+          <button type="button" class="btn btn-ghost" id="btnArenaTie" data-vote="tie">Ничья</button>
+          <button type="button" class="btn btn-primary" id="btnArenaB" data-vote="B">Лучше B</button>
+          <span class="lab-meta" id="arenaVoteStatus" role="status"></span>
+        </div>
+      </section>
+
+      <section class="elo-panel" id="eloPanel" hidden>
+        <div class="elo-head">
+          <h2>Elo рейтинг</h2>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnEloReset">Сбросить</button>
+          <span class="lab-meta">локально · K=32</span>
+        </div>
+        <table class="eval-table" id="eloTable">
+          <thead><tr><th>#</th><th>Модель</th><th>Elo</th><th>W</th><th>L</th><th>T</th><th>игры</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="eval-note" id="eloEmpty" hidden>пока нет голосов — запустите Арену</p>
+      </section>
+
+<section class="lab-panel" id="labPanel" hidden>
+        <div class="lab-head">
+          <h2>Лаборатория</h2>
+          <label class="check-field" title="Нужны SSE-чанки с полем p">
+            <input type="checkbox" id="confToggle" />
+            <span>подсветка уверенности</span>
+          </label>
+        </div>
+        <div class="lab-grid">
+          <div class="lab-card">
+            <h3>Токенизатор</h3>
+            <textarea id="labTokText" rows="3" placeholder="Текст для разбиения на токены…"></textarea>
+            <div class="lab-actions">
+              <button type="button" class="btn btn-primary" id="btnLabTok">Токенизировать</button>
+              <span class="lab-meta" id="labTokMeta"></span>
+            </div>
+            <div class="tok-pills" id="labTokPills" aria-live="polite"></div>
+          </div>
+          <div class="lab-card">
+            <h3>Вероятности следующего токена</h3>
+            <textarea id="labNextPrompt" rows="3" placeholder="Промпт…"></textarea>
+            <div class="lab-actions">
+              <button type="button" class="btn btn-primary" id="btnLabNext">Показать top-k</button>
+              <button type="button" class="btn btn-ghost" id="btnLabNextReset">Сброс</button>
+            </div>
+            <div class="lab-bars" id="labNextBars"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="corpus-panel" id="corpusPanel" hidden>
+        <div class="corpus-head">
+          <h2>Корпус</h2>
+          <form class="corpus-search" id="corpusForm" role="search">
+            <input type="search" id="corpusQuery" placeholder="Поиск по корпусу…" aria-label="Поиск по корпусу" autocomplete="off" />
+            <button type="submit" class="btn btn-primary" id="btnCorpusSearch">Найти</button>
+          </form>
+        </div>
+        <div class="corpus-empty" id="corpusEmpty">Введите запрос — поиск через RAG (/api/search).</div>
+        <ul class="corpus-list" id="corpusList" aria-live="polite"></ul>
+        <div class="corpus-teach" id="corpusTeach">
+          <h3>Научи этому</h3>
+          <input type="text" id="teachTitle" placeholder="Заголовок" aria-label="Заголовок для корпуса" />
+          <textarea id="teachText" rows="3" placeholder="Вставьте текст или перетащите .txt сюда…" aria-label="Текст для корпуса"></textarea>
+          <div class="lab-actions">
+            <input type="file" id="teachFile" accept=".txt,.md,text/plain" hidden />
+            <button type="button" class="btn btn-ghost" id="btnTeachFile">Файл .txt</button>
+            <button type="button" class="btn btn-primary" id="btnTeachSubmit">Добавить в корпус</button>
+            <span class="lab-meta" id="teachStatus" role="status"></span>
+          </div>
+          <p class="teach-note" id="teachNote">попадёт в корпус при пересборке (раз в 15 мин), повторы отбрасываются · макс. 256 КБ · мин. 20 символов</p>
+        </div>
+      </section>
+
+      <section class="eval-panel" id="evalPanel" hidden>
+        <div class="eval-head">
+          <h2>Оценка</h2>
+          <label class="eval-filter field-inline">
+            <span>кат.</span>
+            <select id="evalCatFilter"><option value="">все</option></select>
+          </label>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnRefreshEval">Обновить</button>
+        </div>
+        <p class="eval-note" id="evalNote">Сравнение по <strong>bpc</strong> (ниже = лучше, подсветка лучшего). <span title="не сравнима между разными токенизаторами">val_ppl</span> — вторично. QA — разбивка по cat.</p>
+        <div class="eval-empty" id="evalEmpty" hidden>нет данных</div>
+        <div class="eval-body" id="evalBody" hidden>
+          <div class="eval-bars-label">bpc по чекпоинтам</div>
+          <div class="eval-bars" id="evalBars" aria-label="Сравнение bpc"></div>
+          <div class="eval-table-wrap">
+            <table class="eval-table" id="evalTable">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Чекпоинт</th>
+                  <th>step</th>
+                  <th>bpc</th>
+                  <th>val_ppl</th>
+                  <th>QA</th>
+                  <th>params</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="eval-diff" id="evalDiff">
+            <h3 data-i18n="eval.diff">Сравнение QA</h3>
+            <div class="eval-diff-pick">
+              <label class="field"><span>A</span><select id="evalDiffA" aria-label="Чекпоинт A"></select></label>
+              <label class="field"><span>B</span><select id="evalDiffB" aria-label="Чекпоинт B"></select></label>
+              <button type="button" class="btn btn-primary btn-sm" id="btnEvalDiff" data-i18n="eval.compare">Сравнить</button>
+            </div>
+            <div class="eval-diff-grid" id="evalDiffGrid" hidden></div>
+          </div>
+        </div>
+      </section>
+
+
+      <section class="dataset-panel" id="datasetPanel" hidden>
+        <div class="dataset-head">
+          <h2 data-i18n="tab.dataset">Датасет</h2>
+          <form class="corpus-search" id="datasetForm" role="search">
+            <input type="search" id="datasetQuery" placeholder="Поиск документов…" aria-label="Поиск датасета" autocomplete="off" />
+            <button type="submit" class="btn btn-primary" id="btnDatasetSearch" data-i18n="dataset.search">Найти</button>
+          </form>
+        </div>
+        <div class="dataset-chips" id="datasetChips" role="group" aria-label="Фильтр источников"></div>
+        <div class="dataset-layout">
+          <ul class="dataset-list" id="datasetList" aria-live="polite"></ul>
+          <div class="dataset-preview" id="datasetPreview">
+            <div class="dataset-empty" id="datasetEmpty" data-i18n="dataset.empty">Выберите документ или выполните поиск (/api/search).</div>
+            <article id="datasetDoc" hidden>
+              <h3 id="datasetDocTitle"></h3>
+              <div class="dataset-doc-meta" id="datasetDocMeta"></div>
+              <pre class="dataset-doc-body" id="datasetDocBody"></pre>
+              <div class="lab-actions">
+                <button type="button" class="btn btn-primary btn-sm" id="btnSftAdd" data-i18n="dataset.sft">В SFT</button>
+                <span class="lab-meta" id="sftStatus" role="status"></span>
+              </div>
+            </article>
+          </div>
+        </div>
+        <div class="sft-box" id="sftBox">
+          <div class="sft-head">
+            <h3 data-i18n="dataset.sftbox">SFT пары (локально)</h3>
+            <span class="lab-meta" id="sftCount">0</span>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnSftExport" data-i18n="dataset.export">Экспорт JSONL</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnSftClear" data-i18n="dataset.clear">Очистить</button>
+          </div>
+          <ul class="sft-list" id="sftList"></ul>
+          <p class="teach-note">Формат строки: {"messages":[{"role":"user","content":"…"},{"role":"assistant","content":"…"}],"meta":{"title","url","source"}} — см. web/README.md</p>
+        </div>
+      </section>
+      <section class="train-panel" id="trainPanel" hidden>
+        <div class="train-head">
+          <h2 data-i18n="tab.train">Обучение</h2>
+          <button type="button" class="btn btn-primary" id="btnResumeTrain" data-i18n="train.resume">Дообучить</button>
+          <label class="check-field" title="Notification API">
+            <input type="checkbox" id="trainNotify" />
+            <span data-i18n="train.notify">уведомлять о ckpt</span>
+          </label>
+          <label class="slider-field train-smooth">
+            <span>smoothing <em id="smoothVal">3</em></span>
+            <input type="range" id="smoothSlider" min="1" max="21" step="2" value="3" />
+          </label>
+        </div>
+        <div class="train-empty" id="trainEmpty" hidden>нет данных</div>
+        <div class="train-body" id="trainBody">
+          <div class="train-stats" id="trainStats"></div>
+          <div class="train-live" id="trainLive">
+            <div class="train-kv"><span data-i18n="train.eta">ETA</span><strong id="trainEta">—</strong></div>
+            <div class="train-kv"><span>tok/s</span><strong id="trainTps">—</strong></div>
+            <div class="train-kv"><span>ckpt</span><strong id="trainCkptLive">—</strong></div>
+          </div>
+          <div class="train-samples" id="trainSamples" hidden>
+            <div class="train-samples-label" data-i18n="train.samples">Примеры из обучения</div>
+            <ol id="trainSamplesList" class="train-timeline"></ol>
+          </div>
+          <canvas id="lossChart" width="640" height="200" aria-label="График loss"></canvas>
+        </div>
+        <div class="train-msg" id="trainMsg" hidden></div>
+      </section>
+
+
+      <section class="modelcard-panel" id="modelCardPanel" hidden>
+        <div class="modelcard-head">
+          <h2>Карточка модели</h2>
+          <label class="field field-inline"><span>модель</span>
+            <select id="modelCardSelect" aria-label="Модель для карточки"></select>
+          </label>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnModelCardRefresh">Обновить</button>
+        </div>
+        <div class="modelcard-grid" id="modelCardBody">
+          <div class="dash-card"><h3>Параметры</h3><div id="mcParams" class="dash-kv">…</div></div>
+          <div class="dash-card"><h3>Метрики</h3><div id="mcMetrics" class="dash-kv">…</div>
+            <div class="mc-cats" id="mcCats"></div>
+          </div>
+          <div class="dash-card"><h3>Корпус</h3><div id="mcCorpus" class="dash-kv">…</div></div>
+          <div class="dash-card"><h3>Примеры</h3><pre class="dash-log" id="mcSamples">…</pre></div>
+        </div>
+      </section>
+
+      <section class="playground-panel" id="playgroundPanel" hidden>
+        <div class="playground-head">
+          <h2>Playground</h2>
+          <span class="lab-meta">raw:true · stop[] · n≤4 · lp · fallback /api/next</span>
+        </div>
+        <label class="field"><span>Промпт</span>
+          <textarea id="pgPrompt" rows="4" placeholder="Сырой промпт (complete as-is)…" aria-label="Playground prompt"></textarea>
+        </label>
+        <div class="playground-controls">
+          <label class="field"><span>stop (через |, ≤8)</span><input type="text" id="pgStop" value="\n\n|User:|Human:" /></label>
+          <label class="field"><span>n вариантов</span><input type="number" id="pgNBest" min="1" max="4" value="2" /></label>
+          <label class="field"><span>max tokens</span><input type="number" id="pgSteps" min="1" max="4096" value="64" /></label>
+          <label class="field"><span>модель</span><select id="pgModel"></select></label>
+          <button type="button" class="btn btn-primary" id="btnPgRun">Сгенерировать</button>
+          <button type="button" class="btn btn-danger" id="btnPgStop" hidden>Стоп</button>
+        </div>
+        <div class="pg-tabs" id="pgTabs" hidden role="tablist"></div>
+        <div class="playground-out" id="pgOut" aria-live="polite"></div>
+        <div class="playground-nbest" id="pgNBestOut"></div>
+        <span class="lab-meta" id="pgStatus" role="status"></span>
+      </section>
+
+      <section class="evo-panel" id="evoPanel" hidden>
+        <div class="evo-head">
+          <h2>Эволюция</h2>
+          <span class="lab-meta">один промпт → step_00500…latest · bpc из /api/eval</span>
+        </div>
+        <div class="evo-prompt-row">
+          <textarea id="evoPrompt" rows="2" placeholder="Промпт для таймлайна чекпоинтов…" aria-label="Промпт эволюции"></textarea>
+          <button type="button" class="btn btn-primary" id="btnEvoRun">Прогнать</button>
+          <button type="button" class="btn btn-danger" id="btnEvoStop" hidden>Стоп</button>
+        </div>
+        <div class="evo-scroller" id="evoScroller" role="list"></div>
+        <span class="lab-meta" id="evoStatus" role="status"></span>
+      </section>
+
+      <section class="chatstats-panel" id="chatStatsPanel" hidden>
+        <div class="chatstats-head">
+          <h2>Статистика чатов</h2>
+          <button type="button" class="btn btn-ghost" id="btnChatStatsRefresh">Обновить</button>
+          <span class="lab-meta">локальные данные · messages/day · модели · feedback</span>
+        </div>
+        <div class="chatstats-grid">
+          <div class="dash-card">
+            <h3>Сообщения / день</h3>
+            <canvas id="csDayChart" width="420" height="140" aria-label="Сообщения по дням"></canvas>
+          </div>
+          <div class="dash-card">
+            <h3>Сводка</h3>
+            <div id="csSummary" class="dash-kv">…</div>
+          </div>
+          <div class="dash-card">
+            <h3>Модели</h3>
+            <canvas id="csModelPie" width="180" height="180" aria-label="Использование моделей"></canvas>
+            <ul class="dash-legend" id="csModelLegend"></ul>
+          </div>
+          <div class="dash-card">
+            <h3>Feedback</h3>
+            <div id="csFeedback" class="dash-kv">…</div>
+            <div class="cs-feedback-bar" id="csFeedbackBar" aria-hidden="true"><i id="csFeedbackFill"></i></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="messages" id="messages" aria-live="polite" aria-relevant="additions">
+        <div class="empty" id="emptyState">
+          <div class="empty-icon">✦</div>
+          <h2>Спроси что угодно</h2>
+          <p>Ответы из вашего корпуса. Режим «Сравнение» — две модели рядом.</p>
+          <div class="examples" id="examples">
+            <button type="button" data-prompt="Объясни, как устроен трансформер простыми словами">Как устроен трансформер?</button>
+            <button type="button" data-prompt="Напиши короткую историю про город без дня">Город без дня</button>
+            <button type="button" data-prompt="Суммируй, что такое RAG и зачем он нужен">Что такое RAG?</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="error-banner" id="errorBanner" hidden>
+        <span>Сервер недоступен</span>
+        <button type="button" class="btn btn-ghost" id="btnRetry">Повторить</button>
+      </div>
+
+      <footer class="composer">
+        <div id="attachChips" class="attach-chips" hidden></div>
+        <div id="attachWarn" class="attach-warn" hidden role="status"></div>
+        <div class="composer-box" id="composerBox">
+          <input type="file" id="fileAttach" accept=".txt,.md,text/plain" hidden multiple />
+          <button type="button" class="btn btn-ghost btn-icon" id="btnAttach" title="Прикрепить .txt/.md" aria-label="Прикрепить файл">📎</button>
+          <textarea id="input" rows="1" placeholder="Сообщение… Enter — отправить, Shift+Enter — новая строка" aria-label="Сообщение"></textarea>
+          <div class="composer-actions">
+            <button type="button" class="btn btn-ghost btn-icon btn-voice" id="btnVoice" aria-label="Голосовой ввод" aria-pressed="false" title="Голос (ru-RU)" hidden>🎤</button>
+            <button type="button" class="btn btn-danger" id="btnStop" hidden aria-label="Остановить генерацию">Стоп</button>
+            <button type="button" class="btn btn-primary" id="btnSend" aria-label="Отправить сообщение">Отправить</button>
+          </div>
+        </div>
+        <div class="slash-popup" id="slashPopup" hidden role="listbox" aria-label="Промпты"></div>
+        <div class="token-budget" id="tokenBudget" aria-live="polite">
+          <div class="token-budget-meta"><span id="tokenBudgetLabel">токены: —</span><span id="tokenBudgetWarn" class="token-warn" hidden>близко к лимиту</span></div>
+          <div class="token-budget-bar" role="progressbar" aria-label="Использование контекста" aria-labelledby="tokenBudgetLabel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="tokenBudgetBar"><i id="tokenBudgetFill"></i></div>
+        </div>
+        <div class="composer-hint">МойGPT · Ctrl+K · Ctrl+F · /calc /wiki /time · ? · Esc</div>
+      </footer>
+    </main>
+  </div>
+
+  <div class="overlay" id="cmdPalette" hidden>
+    <div class="overlay-card cmd-card" role="dialog" aria-label="Палитра команд">
+      <input type="search" id="cmdInput" class="cmd-input" placeholder="Команда…" autocomplete="off" aria-label="Команда" />
+      <ul class="cmd-list" id="cmdList" role="listbox"></ul>
+    </div>
+  </div>
+
+  <div class="overlay" id="msgSearchOverlay" hidden>
+    <div class="overlay-card msg-search-card" role="dialog" aria-label="Поиск по сообщениям">
+      <div class="msg-search-head">
+        <input type="search" id="msgSearchInput" class="cmd-input" placeholder="Поиск по всем чатам…" autocomplete="off" />
+        <button type="button" class="btn btn-ghost" id="btnMsgSearchClose">Закрыть</button>
+      </div>
+      <ul class="msg-search-list" id="msgSearchList"></ul>
+    </div>
+  </div>
+
+  <div class="overlay" id="promptsOverlay" hidden>
+    <div class="overlay-card prompts-card" role="dialog" aria-label="Библиотека промптов">
+      <div class="prompts-head">
+        <h2>Библиотека промптов</h2>
+        <button type="button" class="btn btn-ghost" id="btnPromptsClose">Закрыть</button>
+      </div>
+      <form class="prompts-form" id="promptForm">
+        <input type="text" id="promptName" placeholder="Название" required />
+        <input type="text" id="promptSlash" placeholder="/команда" pattern="/[a-zA-Z0-9_-]+" />
+        <textarea id="promptBody" rows="3" placeholder="Текст промпта…" required aria-label="Текст промпта"></textarea>
+        <div class="lab-actions">
+          <button type="submit" class="btn btn-primary">Сохранить</button>
+          <button type="button" class="btn btn-ghost" id="btnPromptExport">Экспорт JSON</button>
+          <button type="button" class="btn btn-ghost" id="btnPromptImport">Импорт JSON</button>
+          <input type="file" id="promptImportFile" accept="application/json,.json" hidden />
+        </div>
+      </form>
+      <ul class="prompts-list" id="promptsList"></ul>
+    </div>
+  </div>
+
+  
+  <div class="overlay" id="explainOverlay" hidden>
+    <div class="overlay-card explain-card" role="dialog" aria-modal="true" aria-label="Объяснить генерацию" id="explainDialog">
+      <div class="prompts-head">
+        <h2>Объяснить</h2>
+        <button type="button" class="btn btn-ghost" id="btnExplainClose">Закрыть</button>
+      </div>
+      <div class="explain-prompt" id="explainPrompt"></div>
+      <div class="explain-built" id="explainBuilt" aria-live="polite"></div>
+      <div class="explain-step-meta" id="explainStepMeta"></div>
+      <div class="lab-bars" id="explainBars"></div>
+      <div class="lab-actions">
+        <button type="button" class="btn btn-primary" id="btnExplainNext">Следующий шаг</button>
+        <button type="button" class="btn btn-ghost" id="btnExplainAuto">Авто ▶</button>
+        <button type="button" class="btn btn-ghost" id="btnExplainReset">С начала</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="workspaceOverlay" hidden>
+    <div class="overlay-card prompts-card" role="dialog" aria-modal="true" aria-label="Workspace">
+      <div class="prompts-head">
+        <h2>Workspace</h2>
+        <button type="button" class="btn btn-ghost" id="btnWorkspaceClose">Закрыть</button>
+      </div>
+      <p class="eval-note">Полный экспорт: чаты, папки, промпты, настройки, Elo. Schema v1.</p>
+      <div class="lab-actions">
+        <button type="button" class="btn btn-primary" id="btnWsExport">Экспорт JSON</button>
+        <button type="button" class="btn btn-ghost" id="btnWsImport">Импорт JSON</button>
+        <input type="file" id="wsImportFile" accept="application/json,.json" hidden />
+      </div>
+      <span class="lab-meta" id="wsStatus" role="status"></span>
+    </div>
+  </div>
+
+  <div class="tour" id="tour" hidden>
+    <div class="tour-card" role="dialog" aria-modal="true" aria-label="Обзор МойGPT" id="tourDialog">
+      <div class="tour-progress"><span id="tourProgress"></span></div>
+      <h2 id="tourTitle">Добро пожаловать</h2>
+      <p id="tourBody"></p>
+      <div class="lab-actions">
+        <button type="button" class="btn btn-ghost" id="btnTourSkip">Пропустить</button>
+        <button type="button" class="btn btn-ghost" id="btnTourPrev">Назад</button>
+        <button type="button" class="btn btn-primary" id="btnTourNext">Далее</button>
+      </div>
+    </div>
+    <div class="tour-spotlight" id="tourSpot" aria-hidden="true"></div>
+  </div>
+
+
+  <div class="overlay" id="notifOverlay" hidden>
+    <div class="overlay-card notif-card" role="dialog" aria-label="Уведомления">
+      <div class="prompts-head">
+        <h2>Уведомления</h2>
+        <button type="button" class="btn btn-ghost btn-sm" id="btnNotifClear">Очистить</button>
+        <button type="button" class="btn btn-ghost" id="btnNotifClose">Закрыть</button>
+      </div>
+      <ul class="notif-list" id="notifList"></ul>
+      <p class="eval-note" id="notifEmpty" hidden>пока пусто — ждём checkpoint / eval / corpus</p>
+    </div>
+  </div>
+
+  <div class="overlay" id="themeBuilderOverlay" hidden>
+    <div class="overlay-card prompts-card" role="dialog" aria-label="Конструктор темы">
+      <div class="prompts-head">
+        <h2>Тема</h2>
+        <button type="button" class="btn btn-ghost" id="btnThemeBuilderClose">Закрыть</button>
+      </div>
+      <label class="field"><span>Accent</span>
+        <input type="color" id="accentPicker" value="#3dd6c6" />
+      </label>
+      <div class="theme-contrast" id="themeContrast" role="status"></div>
+      <div class="lab-actions">
+        <button type="button" class="btn btn-primary" id="btnAccentApply">Применить</button>
+        <button type="button" class="btn btn-ghost" id="btnAccentReset">Сброс</button>
+      </div>
+      <p class="eval-note">Контраст к фону проверяется по WCAG AA (≥4.5:1 для текста). Сохраняется в workspace JSON.</p>
+    </div>
+  </div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

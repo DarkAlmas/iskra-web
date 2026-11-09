@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'none'; connect-src 'none'; img-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'" />
+  <title>sandbox</title>
+</head>
+<body>
+<script>
+if (self.origin !== 'null' || parent === self) throw 0;
+parent.postMessage({__mygpt_run:1,ok:true,ready:1},'*');
+window.addEventListener('message', function (ev) {
+  if (ev.source !== parent) return;
+  if (!ev.data || !ev.data.__mygpt_run_src) return;
+  var logs = [];
+  var c = {
+    log: function () { logs.push(Array.prototype.slice.call(arguments).map(String).join(' ')); },
+    error: function () { logs.push('[err] ' + Array.prototype.slice.call(arguments).map(String).join(' ')); },
+    warn: function () { logs.push('[warn] ' + Array.prototype.slice.call(arguments).map(String).join(' ')); }
+  };
+  try {
+    var fn = new Function('console', ev.data.__mygpt_run_src);
+    fn(c);
+    parent.postMessage({__mygpt_run:1,ok:true,out:logs.join('\n') || '(ok, no output)'}, '*');
+  } catch (e) {
+    parent.postMessage({__mygpt_run:1,ok:false,out:String(e && e.stack || e)}, '*');
+  }
+});
+</script>
+</body>
+</html>
